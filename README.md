@@ -45,6 +45,20 @@ Get the system up and running in seconds:
 
 ---
 
+## 🧪 Testing Layers
+
+This project employs a robust, two-tier testing strategy to ensure both code correctness and API reliability:
+
+- **Unit Tests (Jest)** — Run via `npm run test:unit`
+  These test the core business logic (Services) in strict isolation. By mocking the database or using in-memory databases, they quickly verify that algorithms (like ledger calculations, advance rules, and withdrawal cooldowns) are flawless before any HTTP layer is introduced.
+
+- **End-to-End Tests (Bash script)** — Requires server running, then run `npm run test:e2e`
+  This executes `test.sh`, which uses `curl` to hit the actual live API endpoints. It validates that the Express routers, middleware, database layer, and business logic all work together seamlessly as a real client would experience them.
+
+**Why both?** Jest verifies the internal engine's mathematics and error-handling rapidly and repeatedly. The E2E script guarantees the entire request/response cycle over the network functions as intended in a production-like environment.
+
+---
+
 ## 🧠 Design Decisions & Trade-offs
 
 Here’s a look under the hood at why certain architectural choices were made:
