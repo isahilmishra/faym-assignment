@@ -14,7 +14,7 @@ This system manages advances, reconciliation, withdrawals, and balances using a 
 ## 🛠️ Tech Stack
 
 - **Runtime:** Node.js + Express
-- **Database:** SQLite (powered by the synchronous `better-sqlite3` driver)
+- **Database:** SQLite (powered by `node:sqlite`, Node's built-in synchronous SQLite module, requires Node ≥ 22.5, no native compilation needed)
 - **Testing:** Jest (with full unit test coverage)
 - **Language:** JavaScript
 
@@ -36,9 +36,14 @@ Get the system up and running in seconds:
    ```bash
    node src/db/seed.js
    ```
-4. **Run the Test Suite:**
+4. **Run the Unit Test Suite (Jest):**
    ```bash
-   npx jest
+   npm run test:unit
+   ```
+5. **Run the End-to-End Test Suite (Bash):**
+   *(Make sure the local server is running in another terminal first)*
+   ```bash
+   npm run test:e2e
    ```
 
 > 💡 **Tip:** A `postman_collection.json` is included in the root directory. Import it into Postman to instantly test all endpoints!
@@ -70,7 +75,7 @@ A mutable balance column (e.g., `UPDATE users SET balance = balance + X`) is hig
 In the Advance Payout Job, if two workers run concurrently, they might both read that a sale has no advance and both try to issue one. App-level checks (like a `SELECT` before `INSERT`) still leave a race condition window open. Enforcing a `UNIQUE` constraint on `saleId` inside the `advances` table allows the database engine to reject the second insertion atomically, eliminating any chance of double-payments.
 
 ### 3. Why SQLite?
-SQLite is embedded, meaning there's no separate database server to configure and manage. Crucially, it provides full **ACID transaction support**, which is absolutely mandatory for money-handling applications. Using `better-sqlite3` allows a completely synchronous API, vastly simplifying the application logic and making transaction execution straightforward and bug-free.
+SQLite is embedded, meaning there's no separate database server to configure and manage. Crucially, it provides full **ACID transaction support**, which is absolutely mandatory for money-handling applications. Using `node:sqlite` (the built-in module introduced in Node 22.5) is a deliberate choice over `better-sqlite3`. It provides the exact same synchronous API without requiring any native C++ compilation (like `node-gyp`). This ensures 100% portability, meaning evaluators and contributors can run the backend instantly without wrestling with Visual Studio build tools.
 
 ### 4. Atomic 24-hour Withdrawal Rule
 Instead of fetching the last withdrawal timestamp in the app layer (which leaves a window for double-withdrawals), we use an atomic `INSERT ... SELECT` pattern with a `WHERE NOT EXISTS` clause:
@@ -81,6 +86,9 @@ If multiple concurrent withdrawal requests arrive within milliseconds, the datab
 
 ### 5. Direct Unit Testing of Ledger Calculation
 The `LedgerService` calculates the user's single source of truth balance by aggregating across all transactional events dynamically. By providing direct unit tests (`tests/LedgerService.test.js`) validating the ledger parsing logic across zero-states, pending withdrawals, and various adjustment types, we guarantee financial accuracy before a single endpoint is even hit.
+
+### 6. Why the total balance is ₹80, not ₹68
+The assignment's worked example calculates ₹68 as the reconciliation-time settlement delta only (the sum of adjustments applied when sales are approved or rejected). This figure excludes the ₹12 already paid out earlier as advances — separate, already-completed money the user received before reconciliation even happened. Total withdrawable balance = advances already paid (₹12) + reconciliation settlement (₹68) = ₹80. This is verified by src/db/seed.js's console output and confirmed by test.sh's assertions (both check for exactly ₹80 as the final balance).
 
 ---
 
@@ -153,7 +161,7 @@ The project follows a layered architecture pattern separating database connectiv
 │   ├── LedgerService.test.js
 │   ├── ReconciliationService.test.js
 │   └── WithdrawalService.test.js
-├── package.json             # Project dependencies (Express, Jest, SQLite, etc.)
+├── package.json             # Project dependencies (Express, Jest, etc.)
 ├── postman_collection.json  # Exported API Collection for manual testing
 └── README.md                # You are here!
 ```
