@@ -1,0 +1,5 @@
+node_modules/
+.env
+src/db/data.sqlite
+src/db/data.sqlite-wal
+src/db/data.sqlite-shm

@@ -1,0 +1,96 @@
+{
+  "info": {
+    "name": "User Payout Management System",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Sale",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"userId\": \"john_doe\",\n    \"brand\": \"brand_1\",\n    \"earnings\": 40\n}"
+        },
+        "url": { "raw": "http://localhost:3000/sales", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["sales"] }
+      }
+    },
+    {
+      "name": "List Sales",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "http://localhost:3000/sales", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["sales"] }
+      }
+    },
+    {
+      "name": "Run Advance Payout Job",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": { "raw": "http://localhost:3000/payouts/advance/run", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["payouts", "advance", "run"] }
+      }
+    },
+    {
+      "name": "Reconcile Sale (Approve)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"status\": \"approved\"\n}"
+        },
+        "url": { "raw": "http://localhost:3000/sales/SALE_ID_HERE/reconcile", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["sales", "SALE_ID_HERE", "reconcile"] }
+      }
+    },
+    {
+      "name": "Get User Balance",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "http://localhost:3000/users/john_doe/balance", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["users", "john_doe", "balance"] }
+      }
+    },
+    {
+      "name": "Request Withdrawal",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"userId\": \"john_doe\",\n    \"amount\": 10\n}"
+        },
+        "url": { "raw": "http://localhost:3000/withdrawals", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["withdrawals"] }
+      }
+    },
+    {
+      "name": "Fail Withdrawal",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"reason\": \"failed\"\n}"
+        },
+        "url": { "raw": "http://localhost:3000/withdrawals/WITHDRAWAL_ID_HERE/fail", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["withdrawals", "WITHDRAWAL_ID_HERE", "fail"] }
+      }
+    },
+    {
+      "name": "Get User Ledger",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "http://localhost:3000/users/john_doe/ledger", "protocol": "http", "host": ["localhost"], "port": "3000", "path": ["users", "john_doe", "ledger"] }
+      }
+    }
+  ]
+}
